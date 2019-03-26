@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
 
+import Spinner from '../spinner';
 import SwapiService from '../../services/swapi-service'; //client connection
 
 import './random-planet.css';
 
+
 export default class RandomPlanet extends Component {
 
-  SwapiService = new SwapiService(); //initialization
+  swapiService = new SwapiService(); //initialization
 
   state = {
-    planet : {} //distruct obj
+    planet : {}, //distruct obj
+    loading: true
   };// changing data from server 
   
   //func constructor
@@ -18,48 +21,62 @@ export default class RandomPlanet extends Component {
     this.updatePlanet();
   }
 
-//create like ivent listener 
- 
-onPlanetLoaded = (planet) => {
-  this.setState({planet});
-};
+  //create like ivent listener 
+  onPlanetLoaded = (planet) => {
+    this.setState({planet, 
+      loading: false
+    });
+  };
 
 
   //create func update planet  by id 
   updatePlanet(){
     const id = Math.floor(Math.random()*25)+2;
-    this.SwapiService
+    this.swapiService
       .getPlanet (id)//server connection
       .then(this.onPlanetLoaded);
        //copy value from swapi.co to our state (transfer object) 
   }
 
   render() {
-    const {planet : {id, name, population, rotationPeriod, diameter} } = this.state; // distruct data
-
-    return (
+    
+    const {  planet,  loading
+    } = this.state;
+    const spinner = loading ? <Spinner /> : null; //if load return spinner? or null (nothing)
+    const content = !loading ? <PlanetView planet = {planet}/> : null; // if not load return planet view 
+    
+    return ( 
       <div className="random-planet jumbotron rounded">
-        <img className="planet-image"
-            src={`https://starwars-visualguide.com/assets/img/planets/${id}.jpg`} />
-        <div>
-          <h4>{name}</h4>
-          <ul className="list-group list-group-flush">
-            <li className="list-group-item">
-              <span className="term"> Population: </span>
-              < span > {population} </span>
-            </li>
-            <li className="list-group-item">
-              < span className = "term" > Rotation Period: </span>
-              < span > {rotationPeriod} </span>
-            </li>
-            <li className="list-group-item">
-              < span className = "term" > Diameter </span>
-              <span>{diameter}</span>
-            </li>
-          </ul>
-        </div>
+        {spinner}
+        {content}
       </div>
-
     );
   }
 }
+
+const PlanetView = ({ planet }) => {
+  const { id, name, population, rotationPeriod, diameter} = planet; // distruct data
+  return ( 
+    < React.Fragment>
+      < img className = "planet-image"
+            src = {`https://starwars-visualguide.com/assets/img/planets/${id}.jpg`}/> 
+      <div>
+        <h4> {name} </h4>
+        <ul className = "list-group list-group-flush">
+          <li className = "list-group-item">
+            <span className = "term">Population:</span> 
+            <span> {population}</span>
+          </li>
+          <li className = "list-group-item" >
+            <span className = "term" > Rotation Period: </span>
+            <span> {rotationPeriod} </span>
+          </li>
+          <li className = "list-group-item" >
+            <span className = "term">Diameter</span>
+            <span>{diameter}</span>
+          </li>
+        </ul>
+      </div> 
+    </React.Fragment>
+  );
+};
