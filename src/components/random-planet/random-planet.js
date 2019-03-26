@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Spinner from '../spinner';
 import SwapiService from '../../services/swapi-service'; //client connection
+import ErrorIndicator from '../error-indicator';
 
 import './random-planet.css';
 
@@ -12,7 +13,8 @@ export default class RandomPlanet extends Component {
 
   state = {
     planet : {}, //distruct obj
-    loading: true
+    loading: true,
+    error: false
   };// changing data from server 
   
   //func constructor
@@ -28,25 +30,36 @@ export default class RandomPlanet extends Component {
     });
   };
 
+  onError = (err) => {
+    this.setState({
+      error: true,
+      loading: false
+    })
+  }
 
   //create func update planet  by id 
   updatePlanet(){
     const id = Math.floor(Math.random()*25)+2;
     this.swapiService
       .getPlanet (id)//server connection
-      .then(this.onPlanetLoaded);
+      .then(this.onPlanetLoaded)
        //copy value from swapi.co to our state (transfer object) 
+      .catch(this.onError);
   }
 
   render() {
-    
-    const {  planet,  loading
+    const {  planet,  loading, error
     } = this.state;
+
+    const hasData = !(loading || error); //have data if don't  have error or loading 
+
+    const errorMessage = error ? <ErrorIndicator/> : null; 
     const spinner = loading ? <Spinner /> : null; //if load return spinner? or null (nothing)
-    const content = !loading ? <PlanetView planet = {planet}/> : null; // if not load return planet view 
+    const content = hasData ? <PlanetView planet = {planet}/> : null; // if not load return planet view 
     
     return ( 
       <div className="random-planet jumbotron rounded">
+        {errorMessage}
         {spinner}
         {content}
       </div>
