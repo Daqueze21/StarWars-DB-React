@@ -14,27 +14,24 @@ export default class RandomPlanet extends Component {
   state = {
     planet : {}, //distruct obj
     loading: true, 
-    error: false
+  
   };// changing data from server 
   
-  //func constructor
-  constructor (){
-    super();
-    console.log('constructor()');
+  componentDidMount(){
     this.updatePlanet();
     this.interval = setInterval(this.updatePlanet, 10000);
-    //clearInterval(this.interval); 
-  }
-  componentDidMount(){
-    console.log("componentDidMount");
+    
   } 
+
   componentWillUnmount() {
-    console.log("componentwillOnmount");
+    clearInterval(this.interval);
   }  
+
   //create like ivent listener 
   onPlanetLoaded = (planet) => {
     this.setState({planet, 
-      loading: false
+      loading: false,
+      error: false
     });
   };
 
@@ -47,7 +44,6 @@ export default class RandomPlanet extends Component {
 
   //create func update planet  by id 
   updatePlanet = () => {
-    console.log('update()')
     const id = Math.floor(Math.random()*25)+3;
     this.swapiService
       .getPlanet (id)//server connection
@@ -57,7 +53,7 @@ export default class RandomPlanet extends Component {
   }
 
   render() {
-    console.log('render');
+  
     const {  planet,  loading, error
     } = this.state;
 
@@ -78,6 +74,7 @@ export default class RandomPlanet extends Component {
 }
 
 const PlanetView = ({ planet }) => {
+  
   const { id, name, population, rotationPeriod, diameter} = planet; // distruct data
   return ( 
     < React.Fragment>
